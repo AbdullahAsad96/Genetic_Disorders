@@ -9,8 +9,8 @@ model_name_or_path = "m42-health/Llama3-Med42-8B"  # Update to your model
 pipe = pipeline(
     "text-generation",
     model=model_name_or_path,
-    torch_dtype=torch.bfloat16,
-    device=0,  # Use GPU if available
+    torch_dtype=torch.float32,  # Alternative data type
+    device=0 if torch.cuda.is_available() else -1
 )
 
 # Function to get the model's response
