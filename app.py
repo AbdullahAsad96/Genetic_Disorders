@@ -1,3 +1,4 @@
+import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -6,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 import pickle
 
 # Load the data
-df = pd.read_csv('/content/genetic_diseases_dataset.csv')
+df = pd.read_csv('genetic_diseases_dataset.csv')  # Use the actual path of the file
 
 # Clean and preprocess data
 def preprocess_data(df):
@@ -34,37 +35,27 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
 rf_model.fit(X_train, y_train)
 
-def get_disease_info():
-    # Display available diseases
-    print("\nAvailable Diseases:")
-    for i, disease in enumerate(df['Disease Name'].unique(), 1):
-        print(f"{i}. {disease}")
+# Streamlit main interface
+st.title("Genetic Disease Information System")
 
-    # Get user input for disease
-    disease_input = input("\nEnter disease name from the list above: ")
-
+def get_disease_info(disease_input):
     if disease_input in df['Disease Name'].values:
         disease_info = df[df['Disease Name'] == disease_input].iloc[0]
 
-        print("\nDisease Information:")
-        print(f"Disease: {disease_info['Disease Name']}")
-        print(f"Genes Involved: {disease_info['Gene(s) Involved']}")
-        print(f"Inheritance Pattern: {disease_info['Inheritance Pattern']}")
-        print(f"Symptoms: {disease_info['Symptoms']}")
-        print(f"Severity Level: {disease_info['Severity Level']}")
-        print(f"Risk Assessment: {disease_info['Risk Assessment']}")
-        print(f"Treatment Options: {disease_info['Treatment Options']}")
+        st.write("### Disease Information")
+        st.write(f"Disease: {disease_info['Disease Name']}")
+        st.write(f"Genes Involved: {disease_info['Gene(s) Involved']}")
+        st.write(f"Inheritance Pattern: {disease_info['Inheritance Pattern']}")
+        st.write(f"Symptoms: {disease_info['Symptoms']}")
+        st.write(f"Severity Level: {disease_info['Severity Level']}")
+        st.write(f"Risk Assessment: {disease_info['Risk Assessment']}")
+        st.write(f"Treatment Options: {disease_info['Treatment Options']}")
 
-        return disease_info
     else:
-        print("Disease not found in database.")
-        return None
+        st.write("Disease not found in database.")
 
-def check_symptoms():
-    print("\nEnter symptoms (separate multiple symptoms with commas):")
-    symptoms_input = input().strip().lower()
-    symptoms_list = [s.strip() for s in symptoms_input.split(',')]
-
+def check_symptoms(symptoms_input):
+    symptoms_list = [s.strip().lower() for s in symptoms_input.split(',')]
     matching_diseases = []
 
     for _, row in df.iterrows():
@@ -80,38 +71,29 @@ def check_symptoms():
             })
 
     if matching_diseases:
-        # Sort by number of matching symptoms
         matching_diseases.sort(key=lambda x: x['matches'], reverse=True)
-
-        print("\nPotential Matching Diseases:")
-        print("----------------------------")
+        st.write("### Potential Matching Diseases")
         for match in matching_diseases:
-            print(f"\nDisease: {match['disease']}")
-            print(f"Matching Symptoms Count: {match['matches']}")
-            print(f"Disease Symptoms: {match['symptoms']}")
-            print(f"Severity Level: {match['severity']}")
-            print(f"Risk Assessment: {match['risk']}")
+            st.write(f"Disease: {match['disease']}")
+            st.write(f"Matching Symptoms Count: {match['matches']}")
+            st.write(f"Disease Symptoms: {match['symptoms']}")
+            st.write(f"Severity Level: {match['severity']}")
+            st.write(f"Risk Assessment: {match['risk']}")
+            st.write("---")
     else:
-        print("\nNo matching diseases found for the given symptoms.")
+        st.write("No matching diseases found for the given symptoms.")
 
-def main():
-    while True:
-        print("\n=== Genetic Disease Information System ===")
-        print("1. Search by Disease")
-        print("2. Check Symptoms")
-        print("3. Exit")
+# Interface
+option = st.selectbox("Choose an option", ["Search by Disease", "Check Symptoms", "Exit"])
 
-        choice = input("\nEnter your choice (1-3): ")
+if option == "Search by Disease":
+    disease_input = st.selectbox("Select a disease", df['Disease Name'].unique())
+    get_disease_info(disease_input)
 
-        if choice == '1':
-            get_disease_info()
-        elif choice == '2':
-            check_symptoms()
-        elif choice == '3':
-            print("Thank you for using the system. Goodbye!")
-            break
-        else:
-            print("Invalid choice. Please try again.")
+elif option == "Check Symptoms":
+    symptoms_input = st.text_input("Enter symptoms (separate multiple symptoms with commas):")
+    if st.button("Check"):
+        check_symptoms(symptoms_input)
 
-if _name_ == "_main_":
-    main()
+else:
+    st.write("Thank you for using the system!")
