@@ -1,8 +1,6 @@
 torch
 streamlit 
 transformers
-sklearn.preprocessing
-sklearn.model_selection
 sklearn
 pandas
 numpy
