@@ -1,6 +1,5 @@
 torch
 streamlit 
-transformers
 sklearn
 pandas
 numpy
